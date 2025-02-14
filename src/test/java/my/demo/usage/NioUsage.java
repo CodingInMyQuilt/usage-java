@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 
 public class NioUsage {
 
@@ -47,5 +48,25 @@ public class NioUsage {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    void testByteBuffer2String() {
+        ByteBuffer buffer = ByteBuffer.wrap("hello world".getBytes());
+        buffer.flip();
+        String str1 = StandardCharsets.UTF_8.decode(buffer).toString();
+
+        String str2 = new String(buffer.array());
+    }
+
+    @Test
+    void testString2ByteBuffer() {
+
+        ByteBuffer buffer1 = ByteBuffer.allocate(30);
+        buffer1.put("hello world".getBytes());
+
+        ByteBuffer buffer2 = StandardCharsets.UTF_8.encode("hello world");
+
+        ByteBuffer buffer3 = ByteBuffer.wrap("hello world".getBytes());
     }
 }
