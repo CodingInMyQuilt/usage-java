@@ -7,6 +7,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class NioUsage {
 
@@ -97,6 +100,41 @@ public class NioUsage {
             channel.write(new ByteBuffer[]{b1,b2,b3});
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testStickyPacketAndUnpack() {
+        ArrayList<ByteBuffer> splited = new ArrayList<>();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(32);
+        byteBuffer.put("hello,world;hello,java;hello,".getBytes());
+        byteBuffer.flip();
+        for (int i = 0; i < byteBuffer.limit(); i++) {
+            if (byteBuffer.get(i) == ';') {
+                ByteBuffer buffer = ByteBuffer.allocate(i + 1 - byteBuffer.position());
+                byte[] data = new byte[i + 1 - byteBuffer.position()];
+                byteBuffer.get(data);
+                buffer.put(data);
+                splited.add(buffer);
+            }
+        }
+        for (ByteBuffer buffer : splited) {
+            System.out.println(new String(buffer.array()));
+        }
+        byteBuffer.compact();
+        byteBuffer.put("spring;".getBytes());
+        byteBuffer.flip();
+        for (int i = 0; i < byteBuffer.limit(); i++) {
+            if (byteBuffer.get(i) == ';') {
+                ByteBuffer buffer = ByteBuffer.allocate(i + 1 - byteBuffer.position());
+                byte[] data = new byte[i + 1 - byteBuffer.position()];
+                byteBuffer.get(data);
+                buffer.put(data);
+                splited.add(buffer);
+            }
+        }
+        for (ByteBuffer buffer : splited) {
+            System.out.println(new String(buffer.array()));
         }
     }
 }
