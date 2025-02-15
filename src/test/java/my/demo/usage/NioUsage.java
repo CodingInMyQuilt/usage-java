@@ -69,4 +69,34 @@ public class NioUsage {
 
         ByteBuffer buffer3 = ByteBuffer.wrap("hello world".getBytes());
     }
+
+    @Test
+    void testScatteringRead() {
+        try (FileChannel channel = new RandomAccessFile("src/test/resources/data.txt", "r").getChannel()) {
+            ByteBuffer b1 = ByteBuffer.allocate(2);
+            ByteBuffer b2 = ByteBuffer.allocate(2);
+            ByteBuffer b3 = ByteBuffer.allocate(2);
+            channel.read(new ByteBuffer[]{b1,b2,b3});
+            b1.flip();
+            b2.flip();
+            b3.flip();
+            System.out.println(new String(b1.array()));
+            System.out.println(new String(b2.array()));
+            System.out.println(new String(b3.array()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testGatheringWrite() {
+        try (FileChannel channel = new RandomAccessFile("src/test/resources/data.txt", "rw").getChannel()) {
+            ByteBuffer b1 = ByteBuffer.wrap("hello world111".getBytes());
+            ByteBuffer b2 = ByteBuffer.wrap("hello world222".getBytes());
+            ByteBuffer b3 = ByteBuffer.wrap("hello world333".getBytes());
+            channel.write(new ByteBuffer[]{b1,b2,b3});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
